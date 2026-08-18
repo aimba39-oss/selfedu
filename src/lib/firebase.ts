@@ -7,25 +7,19 @@ import {
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain:
-    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId:
-    import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket:
-    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId:
-    import.meta.env
-      .VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyBAs3ZWEyPbz4e0JKi7gAFqAZXB9F4m_GA",
+  authDomain: "selfedu-305eb.firebaseapp.com",
+  projectId: "selfedu-305eb",
+  storageBucket: "selfedu-305eb.firebasestorage.app",
+  messagingSenderId: "205017453733",
+  appId: "1:205017453733:web:2b09c08f1bc604e5b3294c",
 };
 
 const app = initializeApp(firebaseConfig);
 
 export const auth = initializeAuth(app, {
   persistence: browserLocalPersistence,
-  popupRedirectResolver:
-    browserPopupRedirectResolver,
+  popupRedirectResolver: browserPopupRedirectResolver,
 });
 
 export const db = getFirestore(app);
