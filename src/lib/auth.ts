@@ -1,10 +1,9 @@
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  getRedirectResult,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signInWithRedirect,
+  signInWithPopup,
   signOut,
   updateProfile,
   type User,
@@ -52,14 +51,12 @@ export async function signIn(
 }
 
 export async function signInWithGoogle() {
-  await signInWithRedirect(
+  const result = await signInWithPopup(
     auth,
     googleProvider,
   );
-}
 
-export async function completeGoogleRedirect() {
-  return getRedirectResult(auth);
+  return result.user;
 }
 
 export async function logOut() {

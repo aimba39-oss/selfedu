@@ -9,7 +9,6 @@ import {
 import type { User } from "firebase/auth";
 
 import {
-  completeGoogleRedirect,
   logOut,
   signIn,
   signInWithGoogle,
@@ -54,26 +53,8 @@ export function AuthProvider({
     useState(true);
 
   useEffect(() => {
-    let mounted = true;
-    let authStateResolved = false;
-    let redirectResolved = false;
-
-    const finishLoading = () => {
-      if (
-        mounted &&
-        authStateResolved &&
-        redirectResolved
-      ) {
-        setLoading(false);
-      }
-    };
-
     const unsubscribe =
       subscribeToAuth((currentUser) => {
-        if (!mounted) {
-          return;
-        }
-
         console.log(
           "🔥 Firebase auth state:",
           currentUser
@@ -82,43 +63,10 @@ export function AuthProvider({
         );
 
         setUser(currentUser);
-
-        authStateResolved = true;
-        finishLoading();
+        setLoading(false);
       });
 
-    const handleGoogleRedirect =
-      async () => {
-        try {
-          const result =
-            await completeGoogleRedirect();
-
-          if (
-            mounted &&
-            result?.user
-          ) {
-            console.log(
-              "✅ Google redirect completed:",
-              result.user.email,
-            );
-
-            setUser(result.user);
-          }
-        } catch (error) {
-          console.error(
-            "❌ Google redirect error:",
-            error,
-          );
-        } finally {
-          redirectResolved = true;
-          finishLoading();
-        }
-      };
-
-    void handleGoogleRedirect();
-
     return () => {
-      mounted = false;
       unsubscribe();
     };
   }, []);
@@ -155,7 +103,10 @@ export function AuthProvider({
 
   const signInWithGoogleUser =
     async () => {
-      await signInWithGoogle();
+      const googleUser =
+        await signInWithGoogle();
+
+      setUser(googleUser);
     };
 
   const signOutUser = async () => {
