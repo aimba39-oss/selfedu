@@ -10,6 +10,8 @@ import {
   type SpeakingPart,
 } from "../data/speakingData";
 
+import { apiUrl } from "../lib/api";
+
 type SpeechRecognitionAlternativeLike = {
   transcript: string;
 };
@@ -68,20 +70,29 @@ function SpeakingInterview() {
       ? requestedPart
       : 1;
 
-  const [part, setPart] = useState<SpeakingPart>(initialPart);
-  const [questionIndex, setQuestionIndex] = useState(0);
+  const [part, setPart] =
+    useState<SpeakingPart>(initialPart);
 
-  const [transcript, setTranscript] = useState("");
+  const [questionIndex, setQuestionIndex] =
+    useState(0);
+
+  const [transcript, setTranscript] =
+    useState("");
+
   const [interimTranscript, setInterimTranscript] =
     useState("");
 
-  const [conversation, setConversation] = useState<
-    ConversationMessage[]
-  >([]);
+  const [conversation, setConversation] =
+    useState<ConversationMessage[]>([]);
 
-  const [annaReply, setAnnaReply] = useState("");
-  const [isListening, setIsListening] = useState(false);
-  const [isThinking, setIsThinking] = useState(false);
+  const [annaReply, setAnnaReply] =
+    useState("");
+
+  const [isListening, setIsListening] =
+    useState(false);
+
+  const [isThinking, setIsThinking] =
+    useState(false);
 
   const [browserSpeechSupported, setBrowserSpeechSupported] =
     useState(true);
@@ -89,8 +100,11 @@ function SpeakingInterview() {
   const recognitionRef =
     useRef<SpeechRecognitionLike | null>(null);
 
-  const manuallyStoppedRef = useRef(false);
-  const shouldKeepListeningRef = useRef(false);
+  const manuallyStoppedRef =
+    useRef(false);
+
+  const shouldKeepListeningRef =
+    useRef(false);
 
   const questions = useMemo(
     () => getQuestionsForPart(part),
@@ -147,8 +161,6 @@ function SpeakingInterview() {
     recognition.onend = () => {
       setIsListening(false);
 
-      // Safari/Chrome can terminate recognition after a short
-      // silence. Restart while the user is still recording.
       if (
         shouldKeepListeningRef.current &&
         !manuallyStoppedRef.current
@@ -207,7 +219,6 @@ function SpeakingInterview() {
       recognitionRef.current.start();
       setIsListening(true);
     } catch {
-      // Recognition is already running.
       setIsListening(true);
     }
   };
@@ -250,7 +261,7 @@ function SpeakingInterview() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:3000/api/ai/speaking/respond",
+        apiUrl("/api/ai/speaking/respond"),
         {
           method: "POST",
           headers: {
@@ -294,7 +305,10 @@ function SpeakingInterview() {
       setTranscript("");
       setInterimTranscript("");
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Speaking AI error:",
+        error,
+      );
 
       setAnnaReply(
         "I couldn't connect to the AI interviewer. Please try again.",
@@ -313,12 +327,17 @@ function SpeakingInterview() {
     setAnnaReply("");
 
     if (questionIndex < questions.length - 1) {
-      setQuestionIndex((current) => current + 1);
+      setQuestionIndex(
+        (current) => current + 1,
+      );
       return;
     }
 
     if (part < 3) {
-      setPart((current) => (current + 1) as SpeakingPart);
+      setPart(
+        (current) =>
+          (current + 1) as SpeakingPart,
+      );
       setQuestionIndex(0);
       return;
     }
@@ -401,7 +420,9 @@ function SpeakingInterview() {
           </span>
 
           <strong>Anna</strong>
-          <small>Professional · Adaptive · Natural</small>
+          <small>
+            Professional · Adaptive · Natural
+          </small>
         </section>
 
         <section className="speaking-conversation-panel">
@@ -419,7 +440,8 @@ function SpeakingInterview() {
             </div>
 
             <div className="speaking-question-progress">
-              {questionIndex + 1} / {questions.length}
+              {questionIndex + 1} /{" "}
+              {questions.length}
             </div>
           </div>
 
@@ -434,11 +456,13 @@ function SpeakingInterview() {
 
             {question.followUp && (
               <div className="speaking-followups">
-                {question.followUp.map((followUp) => (
-                  <span key={followUp}>
-                    {followUp}
-                  </span>
-                ))}
+                {question.followUp.map(
+                  (followUp) => (
+                    <span key={followUp}>
+                      {followUp}
+                    </span>
+                  ),
+                )}
               </div>
             )}
           </div>
@@ -455,10 +479,13 @@ function SpeakingInterview() {
             </div>
 
             <div className="speaking-transcript">
-              {transcript || interimTranscript ? (
+              {transcript ||
+              interimTranscript ? (
                 <>
                   <span>{transcript}</span>
-                  <em>{interimTranscript}</em>
+                  <em>
+                    {interimTranscript}
+                  </em>
                 </>
               ) : (
                 <span className="speaking-transcript-placeholder">
@@ -516,15 +543,17 @@ function SpeakingInterview() {
             className="speaking-skip-button"
             type="button"
             onClick={nextQuestion}
-            disabled={isListening || isThinking}
+            disabled={
+              isListening || isThinking
+            }
           >
             Continue to next question
           </button>
 
           {!browserSpeechSupported && (
             <p className="speaking-browser-warning">
-              Speech recognition is not available in this
-              browser.
+              Speech recognition is not available
+              in this browser.
             </p>
           )}
         </section>
