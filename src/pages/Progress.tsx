@@ -2,8 +2,10 @@ import { useMemo, useState } from "react";
 
 import {
   clearProgress,
+  getAllSkillTrends,
   getAverageBand,
   getProgressAttempts,
+  getProgressRecommendation,
   getWeakestSkill,
   type ProgressSkill,
 } from "../lib/progress";
@@ -18,6 +20,9 @@ function Progress() {
 
   const averageBand = getAverageBand();
   const weakestSkill = getWeakestSkill();
+  const trends = getAllSkillTrends();
+  const recommendation =
+    getProgressRecommendation();
 
   const skillMeta: Record<
     ProgressSkill,
@@ -28,19 +33,23 @@ function Progress() {
   > = {
     reading: {
       label: "Reading",
-      description: "Accuracy and comprehension",
+      description:
+        "Accuracy and comprehension",
     },
     listening: {
       label: "Listening",
-      description: "Accuracy and concentration",
+      description:
+        "Accuracy and concentration",
     },
     writing: {
       label: "Writing",
-      description: "AI-evaluated responses",
+      description:
+        "AI-evaluated responses",
     },
     speaking: {
       label: "Speaking",
-      description: "AI-evaluated interviews",
+      description:
+        "AI-evaluated interviews",
     },
   };
 
@@ -68,6 +77,38 @@ function Progress() {
     refresh();
   };
 
+  const formatTrend = (
+    skill: ProgressSkill,
+  ) => {
+    const trend = trends[skill];
+
+    if (trend.change === null) {
+      return "—";
+    }
+
+    return `${trend.change > 0 ? "+" : ""}${trend.change.toFixed(1)}`;
+  };
+
+  const formatTrendLabel = (
+    skill: ProgressSkill,
+  ) => {
+    const status = trends[skill].status;
+
+    if (status === "improving") {
+      return "Improving";
+    }
+
+    if (status === "declining") {
+      return "Declining";
+    }
+
+    if (status === "stable") {
+      return "Stable";
+    }
+
+    return "Not enough data";
+  };
+
   return (
     <div className="progress-page">
       <section className="progress-hero">
@@ -84,20 +125,23 @@ function Progress() {
 
           <p className="progress-hero-description">
             SelfEDU collects your completed Reading,
-            Listening, Writing, and Speaking attempts so your
-            dashboard reflects what you actually practiced.
+            Listening, Writing, and Speaking attempts so
+            your dashboard reflects what you actually
+            practiced.
           </p>
         </div>
 
         <div className="progress-band-orb">
-          <span>OVERALL ESTIMATE</span>
+          <span>OVERALL BAND</span>
 
           <strong>
-            {averageBand ?? "—"}
+            {averageBand !== null
+              ? averageBand.toFixed(1)
+              : "—"}
           </strong>
 
           <small>
-            {averageBand
+            {attempts.length
               ? "based on saved attempts"
               : "complete a skill to begin"}
           </small>
@@ -114,6 +158,7 @@ function Progress() {
           ] as ProgressSkill[]
         ).map((skill) => {
           const item = latest(skill);
+          const trend = trends[skill];
 
           return (
             <article
@@ -126,13 +171,15 @@ function Progress() {
                 </span>
 
                 <span>
-                  {item?.band ?? "—"}
+                  {item?.band !== undefined
+                    ? item.band.toFixed(1)
+                    : "—"}
                 </span>
               </div>
 
               <h2>
-                {item?.band
-                  ? `Band ${item.band}`
+                {item?.band !== undefined
+                  ? `Band ${item.band.toFixed(1)}`
                   : "Not attempted"}
               </h2>
 
@@ -151,9 +198,25 @@ function Progress() {
                 </span>
 
                 <strong>
-                  {item?.title || "Start practicing"}
+                  {formatTrend(skill)} ·{" "}
+                  {formatTrendLabel(skill)}
                 </strong>
               </div>
+
+              {trend.attempts > 0 && (
+                <div
+                  style={{
+                    marginTop: "14px",
+                    color: "var(--text-muted)",
+                    fontSize: "9px",
+                  }}
+                >
+                  {trend.attempts} recorded{" "}
+                  {trend.attempts === 1
+                    ? "attempt"
+                    : "attempts"}
+                </div>
+              )}
             </article>
           );
         })}
@@ -180,14 +243,17 @@ function Progress() {
 
             <strong>
               {weakestSkill
-                ? skillMeta[weakestSkill.skill]
-                    .label
+                ? skillMeta[
+                    weakestSkill.skill
+                  ].label
                 : "Not enough data"}
             </strong>
 
             <p>
               {weakestSkill
-                ? `Your latest saved estimate is Band ${weakestSkill.band}. Focus here before adding more tests.`
+                ? `Your latest saved estimate is Band ${weakestSkill.band.toFixed(
+                    1,
+                  )}.`
                 : "Complete at least one evaluated attempt to generate a meaningful recommendation."}
             </p>
           </article>
@@ -197,29 +263,31 @@ function Progress() {
               TOTAL ATTEMPTS
             </span>
 
-            <strong>{attempts.length}</strong>
+            <strong>
+              {attempts.length}
+            </strong>
 
             <p>
-              Every completed skill attempt is saved locally
-              in this browser.
+              Every completed skill attempt is saved
+              locally in this browser.
             </p>
           </article>
 
           <article className="progress-focus-card dashboard-glass-card">
             <span className="dashboard-label">
-              DATA STATUS
+              NEXT RECOMMENDATION
             </span>
 
             <strong>
-              {attempts.length
-                ? "Active"
-                : "Waiting"}
+              {recommendation.skill
+                ? skillMeta[
+                    recommendation.skill
+                  ].label
+                : "Start"}
             </strong>
 
             <p>
-              Persistent cloud accounts will replace local
-              storage when authentication and the database are
-              added.
+              {recommendation.description}
             </p>
           </article>
         </div>
@@ -282,7 +350,10 @@ function Progress() {
 
                 <div className="progress-history-score">
                   <strong>
-                    {attempt.band ?? "—"}
+                    {typeof attempt.band ===
+                    "number"
+                      ? attempt.band.toFixed(1)
+                      : "—"}
                   </strong>
 
                   <span>

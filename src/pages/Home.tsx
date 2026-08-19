@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 
 import {
+  getAllSkillTrends,
   getAverageBand,
   getProgressAttempts,
+  getProgressRecommendation,
   type ProgressSkill,
 } from "../lib/progress";
 
@@ -55,68 +57,87 @@ const skillOrder: ProgressSkill[] = [
 function Home() {
   const attempts = getProgressAttempts();
   const averageBand = getAverageBand();
+  const trends = getAllSkillTrends();
+  const recommendation =
+    getProgressRecommendation();
 
-  const latestBySkill = skillOrder.reduce(
-    (result, skill) => {
-      result[skill] =
-        attempts.find((attempt) => attempt.skill === skill)
-          ?.band ?? null;
-
-      return result;
-    },
-    {} as Record<ProgressSkill, number | null>,
-  );
-
-  const getDisplayBand = (skill: ProgressSkill) => {
-    const band = latestBySkill[skill];
+  const getBand = (skill: ProgressSkill) => {
+    const band = trends[skill].latestBand;
 
     return typeof band === "number"
       ? band.toFixed(1)
       : "—";
   };
 
-  const firstBand =
-    attempts.length > 1
-      ? attempts[attempts.length - 1]?.band
-      : null;
+  const getTrend = (skill: ProgressSkill) => {
+    const trend = trends[skill];
 
-  const trend =
-    typeof averageBand === "number" &&
-    typeof firstBand === "number"
-      ? Math.round((averageBand - firstBand) * 10) / 10
-      : null;
+    if (trend.change === null) {
+      return "—";
+    }
 
-  const trendText =
-    trend === null
-      ? "—"
-      : `${trend > 0 ? "+" : ""}${trend.toFixed(1)}`;
+    return `${trend.change > 0 ? "+" : ""}${trend.change.toFixed(1)}`;
+  };
+
+  const getTrendLabel = (
+    skill: ProgressSkill,
+  ) => {
+    const status = trends[skill].status;
+
+    if (status === "improving") {
+      return "improving";
+    }
+
+    if (status === "declining") {
+      return "declining";
+    }
+
+    if (status === "stable") {
+      return "stable";
+    }
+
+    return "not enough data";
+  };
 
   return (
     <div className="home-page">
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">PERSONAL IELTS PREPARATION</p>
+          <p className="eyebrow">
+            PERSONAL IELTS PREPARATION
+          </p>
 
           <h1>
             Your IELTS
             <br />
-            <span className="hero-dark">goal.</span>
+            <span className="hero-dark">
+              goal.
+            </span>
             <br />
-            <span className="hero-muted">Your path.</span>
+            <span className="hero-muted">
+              Your path.
+            </span>
           </h1>
 
           <p className="hero-description">
-            A premium IELTS preparation experience built around your
-            progress, your weaknesses, and intelligent AI coaching.
+            A premium IELTS preparation experience built
+            around your progress, your weaknesses, and
+            intelligent AI coaching.
           </p>
 
           <div className="hero-actions">
-            <Link className="primary-button" to="/practice">
+            <Link
+              className="primary-button"
+              to="/practice"
+            >
               Start your journey
               <span>↗</span>
             </Link>
 
-            <a className="secondary-button" href="#skills">
+            <a
+              className="secondary-button"
+              href="#skills"
+            >
               Explore platform
             </a>
           </div>
@@ -161,14 +182,23 @@ function Home() {
             </div>
 
             <div className="ai-copy">
-              <span className="ai-label">PERSONAL INTERVIEWER</span>
+              <span className="ai-label">
+                PERSONAL INTERVIEWER
+              </span>
 
-              <h2>Ready when you are.</h2>
+              <h2>
+                Ready when you are.
+              </h2>
 
-              <p>Let&apos;s improve your next band score.</p>
+              <p>
+                Let&apos;s improve your next band score.
+              </p>
             </div>
 
-            <Link className="ai-button" to="/ai-coach">
+            <Link
+              className="ai-button"
+              to="/ai-coach"
+            >
               Enter AI Coach
               <span>→</span>
             </Link>
@@ -176,10 +206,15 @@ function Home() {
         </div>
       </section>
 
-      <section className="skills-section" id="skills">
+      <section
+        className="skills-section"
+        id="skills"
+      >
         <div className="section-intro">
           <div>
-            <p className="eyebrow">THE FOUR SKILLS</p>
+            <p className="eyebrow">
+              THE FOUR SKILLS
+            </p>
 
             <h2>
               Train every part
@@ -189,8 +224,9 @@ function Home() {
           </div>
 
           <p className="section-description">
-            One platform for Listening, Reading, Writing, and Speaking —
-            designed to turn practice into measurable progress.
+            One platform for Listening, Reading, Writing,
+            and Speaking — designed to turn practice into
+            measurable progress.
           </p>
         </div>
 
@@ -218,17 +254,24 @@ function Home() {
               <div className="skill-bottom">
                 <span>{skill.meta}</span>
 
-                <span className="skill-arrow">↗</span>
+                <span className="skill-arrow">
+                  ↗
+                </span>
               </div>
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="progress-section" id="progress">
+      <section
+        className="progress-section"
+        id="progress"
+      >
         <div className="section-intro progress-intro">
           <div>
-            <p className="eyebrow">YOUR PROGRESS</p>
+            <p className="eyebrow">
+              YOUR PROGRESS
+            </p>
 
             <h2>
               See where
@@ -238,8 +281,8 @@ function Home() {
           </div>
 
           <p className="section-description">
-            Every completed attempt becomes part of your personal
-            performance picture.
+            This section is generated from your actual saved
+            attempts. Nothing is filled in until you practice.
           </p>
         </div>
 
@@ -258,103 +301,93 @@ function Home() {
             </div>
 
             <div className="trend">
-              <span>{trendText}</span>
+              <span>
+                {attempts.length}
+              </span>
 
               <small>
-                {trend === null
-                  ? "no comparison yet"
-                  : "change from earlier attempts"}
+                saved attempts
               </small>
             </div>
           </div>
 
-          <div className="graph">
-            <div className="graph-gridline grid-one" />
-            <div className="graph-gridline grid-two" />
-            <div className="graph-gridline grid-three" />
-
-            <svg
-              className="graph-svg"
-              viewBox="0 0 1000 300"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient
-                  id="progressGradient"
-                  x1="0"
-                  x2="1"
-                >
-                  <stop
-                    offset="0%"
-                    stopColor="#b7b7b3"
-                  />
-                  <stop
-                    offset="45%"
-                    stopColor="#b89a5a"
-                  />
-                  <stop
-                    offset="100%"
-                    stopColor="#222326"
-                  />
-                </linearGradient>
-              </defs>
-
-              <path
-                d="M0,240 C120,225 165,205 250,210 C350,216 380,165 470,178 C570,194 595,136 700,150 C815,165 820,100 1000,62"
-                fill="none"
-                stroke="url(#progressGradient)"
-                strokeWidth="5"
-                strokeLinecap="round"
-              />
-            </svg>
-
-            <span className="graph-dot dot-one" />
-            <span className="graph-dot dot-two" />
-            <span className="graph-dot dot-three" />
-            <span className="graph-dot dot-four" />
-            <span className="graph-dot dot-five" />
-          </div>
-
           <div className="skills-values">
-            <div>
-              <span>Listening</span>
-              <strong>
-                {getDisplayBand("listening")}
-              </strong>
-            </div>
+            {skillOrder.map((skill) => (
+              <div key={skill}>
+                <span>
+                  {skill.charAt(0).toUpperCase() +
+                    skill.slice(1)}
+                </span>
 
-            <div>
-              <span>Reading</span>
-              <strong>
-                {getDisplayBand("reading")}
-              </strong>
-            </div>
+                <strong>
+                  {getBand(skill)}
+                </strong>
 
-            <div>
-              <span>Writing</span>
-              <strong>
-                {getDisplayBand("writing")}
-              </strong>
-            </div>
-
-            <div>
-              <span>Speaking</span>
-              <strong>
-                {getDisplayBand("speaking")}
-              </strong>
-            </div>
+                <small
+                  style={{
+                    display: "block",
+                    marginTop: "6px",
+                    color: "var(--text-muted)",
+                    fontSize: "9px",
+                  }}
+                >
+                  {getTrend(skill)} ·{" "}
+                  {getTrendLabel(skill)}
+                </small>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="closing-section" id="ai">
-        <p className="eyebrow">INTELLIGENT PREPARATION</p>
+      <section
+        className="progress-section"
+        style={{ paddingTop: 0 }}
+      >
+        <div className="section-intro">
+          <div>
+            <p className="eyebrow">
+              NEXT MOVE
+            </p>
+
+            <h2>
+              Your dashboard
+              <br />
+              has a plan.
+            </h2>
+          </div>
+
+          <div>
+            <p className="section-description">
+              {recommendation.description}
+            </p>
+
+            <Link
+              className="primary-button"
+              to={recommendation.route}
+              style={{ marginTop: "22px" }}
+            >
+              {recommendation.actionLabel}
+              <span>→</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section
+        className="closing-section"
+        id="ai"
+      >
+        <p className="eyebrow">
+          INTELLIGENT PREPARATION
+        </p>
 
         <h2>
           Practice with purpose.
           <br />
-          <span>Improve with SelfEDU.</span>
+          <span>
+            Improve with SelfEDU.
+          </span>
         </h2>
 
         <Link
