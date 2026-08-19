@@ -7006,4 +7006,291 @@ footer {
   font-size: 22px;
   box-shadow: var(--shadow-soft);
   animation: float-card 2s ease-in-out infinite;
+}/* ==================================================
+   SELFEDU THEME SYSTEM
+   ================================================== */
+
+:root {
+  --background: #f4f3ef;
+  --background-soft: #faf9f6;
+
+  --text: #171717;
+  --text-secondary: #686868;
+  --text-muted: #8a8a8a;
+
+  --surface: rgba(255, 255, 255, 0.58);
+  --surface-strong: rgba(255, 255, 255, 0.74);
+  --surface-soft: rgba(244, 243, 239, 0.72);
+
+  --border: rgba(255, 255, 255, 0.86);
+  --line: rgba(30, 30, 30, 0.08);
+
+  --gold: #b89a5a;
+  --gold-dark: #8d7139;
+
+  --shadow-soft:
+    0 24px 70px rgba(30, 30, 30, 0.07);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --background: #0d0f12;
+  --background-soft: #121419;
+
+  --text: #f3f2ef;
+  --text-secondary: #b4b6bb;
+  --text-muted: #7f838a;
+
+  --surface: rgba(25, 27, 32, 0.78);
+  --surface-strong: rgba(32, 35, 41, 0.9);
+  --surface-soft: rgba(20, 22, 27, 0.78);
+
+  --border: rgba(255, 255, 255, 0.10);
+  --line: rgba(255, 255, 255, 0.08);
+
+  --gold: #c5a96a;
+  --gold-dark: #d0b376;
+
+  --shadow-soft:
+    0 24px 70px rgba(0, 0, 0, 0.35);
+
+  color-scheme: dark;
+}
+
+/* Page background */
+
+html,
+body {
+  background: var(--background);
+  color: var(--text);
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
+}
+
+/* Main application */
+
+#root,
+.site,
+.app {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text);
+}
+
+/* Global text */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+strong,
+small,
+label {
+  transition: color 180ms ease;
+}
+
+/* Navbar */
+
+:root[data-theme="dark"] .navbar {
+  background: rgba(18, 20, 24, 0.72);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+:root[data-theme="dark"] .nav-links a {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .nav-links a:hover {
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .theme-button,
+:root[data-theme="dark"] .profile-button {
+  background: var(--surface-strong);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Main light-mode hardcoded areas */
+
+:root[data-theme="dark"] .inner-page,
+:root[data-theme="dark"] .app {
+  background:
+    radial-gradient(
+      circle at 80% 12%,
+      rgba(255, 255, 255, 0.035),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 12% 35%,
+      rgba(255, 255, 255, 0.02),
+      transparent 26%
+    ),
+    linear-gradient(
+      145deg,
+      #101216 0%,
+      #0c0e12 52%,
+      #111318 100%
+    );
+}
+
+/* Hero / common headings */
+
+:root[data-theme="dark"] .hero h1,
+:root[data-theme="dark"] .section-intro h2,
+:root[data-theme="dark"] .closing-section h2,
+:root[data-theme="dark"] .inner-page h1 {
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .hero-muted,
+:root[data-theme="dark"] .closing-section h2 span {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .hero-description,
+:root[data-theme="dark"] .section-description {
+  color: var(--text-secondary);
+}
+
+/* Cards */
+
+:root[data-theme="dark"] .skill-card,
+:root[data-theme="dark"] .progress-card,
+:root[data-theme="dark"] .ai-floating-card {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow:
+    var(--shadow-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+:root[data-theme="dark"] .skill-icon {
+  background: var(--surface-strong);
+  color: var(--text);
+}
+
+/* Buttons */
+
+:root[data-theme="dark"] .secondary-button,
+:root[data-theme="dark"] .ai-button,
+:root[data-theme="dark"] .reading-submit-button,
+:root[data-theme="dark"] .reading-nav-button,
+:root[data-theme="dark"] .audio-control-button,
+:root[data-theme="dark"] .speech-speed select,
+:root[data-theme="dark"] .speaking-mic-button,
+:root[data-theme="dark"] .profile-google-button,
+:root[data-theme="dark"] .profile-logout-button {
+  background: var(--surface-strong);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Forms */
+
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] select {
+  background: var(--surface-soft);
+  color: var(--text);
+  border-color: var(--line);
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* Reading */
+
+:root[data-theme="dark"] .reading-passage-nav,
+:root[data-theme="dark"] .reading-passage,
+:root[data-theme="dark"] .reading-questions,
+:root[data-theme="dark"] .reading-question-option {
+  background-color: transparent;
+}
+
+/* Graphs / subtle lines */
+
+:root[data-theme="dark"] .graph-gridline {
+  border-color: var(--line);
+}
+
+:root[data-theme="dark"] footer {
+  border-color: var(--line);
+  color: var(--text-muted);
+}
+
+/* Theme toggle animation */
+
+.theme-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  transition:
+    transform 160ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.theme-button:hover {
+  transform: translateY(-1px) rotate(-3deg);
+}
+
+.theme-button:active {
+  transform: scale(0.94);
+}
+
+.theme-icon {
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  line-height: 1;
+  transition:
+    transform 220ms ease,
+    opacity 180ms ease;
+}
+
+.theme-button:hover .theme-icon {
+  transform: rotate(18deg) scale(1.08);
+}
+
+:root[data-theme="dark"] .theme-icon {
+  transform: rotate(180deg);
+}
+
+/* Smooth global theme transition */
+
+body,
+.navbar,
+.dashboard-glass-card,
+.skill-card,
+.profile-auth-card,
+.ai-coach-chat,
+.ai-coach-quick,
+.ai-coach-focus,
+.writing-result-main,
+.writing-response-preview,
+.speaking-question-card,
+.speaking-transcript-panel,
+.reading-test-layout,
+.reading-book-badge,
+.progress-band-orb,
+.progress-skill-card {
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease;
 }
