@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   Link,
   useLocation,
@@ -13,6 +13,80 @@ interface ResultsLocationState {
   autoSubmitted?: boolean;
 }
 
+/**
+ * Approximate IELTS Academic Reading conversion.
+ *
+ * IELTS/Cambridge conversions can vary slightly by test,
+ * so this is intentionally treated as an estimate.
+ */
+function getReadingBand(correct: number): number | null {
+  if (correct <= 0) {
+    return null;
+  }
+
+  if (correct >= 39) {
+    return 9.0;
+  }
+
+  if (correct >= 37) {
+    return 8.5;
+  }
+
+  if (correct >= 35) {
+    return 8.0;
+  }
+
+  if (correct >= 33) {
+    return 7.5;
+  }
+
+  if (correct >= 30) {
+    return 7.0;
+  }
+
+  if (correct >= 27) {
+    return 6.5;
+  }
+
+  if (correct >= 23) {
+    return 6.0;
+  }
+
+  if (correct >= 19) {
+    return 5.5;
+  }
+
+  if (correct >= 15) {
+    return 5.0;
+  }
+
+  if (correct >= 13) {
+    return 4.5;
+  }
+
+  if (correct >= 10) {
+    return 4.0;
+  }
+
+  if (correct >= 8) {
+    return 3.5;
+  }
+
+  if (correct >= 6) {
+    return 3.0;
+  }
+
+  if (correct >= 4) {
+    return 2.5;
+  }
+
+  if (correct >= 2) {
+    return 2.0;
+  }
+
+  return 1.0;
+}
+
 function ReadingResults() {
   const { bookId, testNumber } = useParams();
   const location = useLocation();
@@ -23,29 +97,19 @@ function ReadingResults() {
   const readingTest = getReadingTest(book, test);
 
   const state =
-    (location.state as ResultsLocationState | null) ?? null;
+    (location.state as ResultsLocationState | null) ??
+    null;
 
   const answers = state?.answers ?? {};
 
-  if (!readingTest) {
-    return (
-      <div className="reading-error-page">
-        <p className="eyebrow">RESULTS</p>
-
-        <h1>Results not found.</h1>
-
-        <Link
-          to="/reading"
-          className="primary-button"
-        >
-          Back to Reading
-        </Link>
-      </div>
-    );
-  }
-
-  const questions = readingTest.passages.flatMap(
-    (passage) => passage.questions,
+  const questions = useMemo(
+    () =>
+      readingTest
+        ? readingTest.passages.flatMap(
+            (passage) => passage.questions,
+          )
+        : [],
+    [readingTest],
   );
 
   const correct = questions.filter(
@@ -63,26 +127,19 @@ function ReadingResults() {
       ? 0
       : Math.round((correct / total) * 100);
 
-  const band =
-    correct >= Math.ceil(total * 0.9)
-      ? "8.5"
-      : correct >= Math.ceil(total * 0.78)
-        ? "8.0"
-        : correct >= Math.ceil(total * 0.68)
-          ? "7.5"
-          : correct >= Math.ceil(total * 0.58)
-            ? "7.0"
-            : correct >= Math.ceil(total * 0.48)
-              ? "6.5"
-              : "6.0";
+  const band = getReadingBand(correct);
 
   useEffect(() => {
+    if (!readingTest || total === 0) {
+      return;
+    }
+
     saveProgressAttempt({
       id: `reading-${book}-${test}-${Date.now()}`,
       skill: "reading",
       score: correct,
       maxScore: total,
-      band: Number(band),
+      band: band ?? undefined,
       title: `Cambridge ${book} · Test ${test}`,
       date: new Date().toISOString(),
       detail: `${correct}/${total} correct · ${percentage}% accuracy`,
@@ -92,9 +149,27 @@ function ReadingResults() {
     book,
     correct,
     percentage,
+    readingTest,
     test,
     total,
   ]);
+
+  if (!readingTest) {
+    return (
+      <div className="reading-error-page">
+        <p className="eyebrow">RESULTS</p>
+
+        <h1>Results not found.</h1>
+
+        <Link
+          to="/reading"
+          className="primary-button"
+        >
+          Back to Reading
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="reading-results-page">
@@ -127,9 +202,15 @@ function ReadingResults() {
         <div className="reading-result-band">
           <span>ESTIMATED BAND</span>
 
-          <strong>{band}</strong>
+          <strong>
+            {band !== null
+              ? band.toFixed(1)
+              : "—"}
+          </strong>
 
-          <small>{percentage}% accuracy</small>
+          <small>
+            {percentage}% accuracy
+          </small>
         </div>
       </section>
 
