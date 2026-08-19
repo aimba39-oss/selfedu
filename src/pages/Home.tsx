@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom";
 
+import {
+  getAverageBand,
+  getProgressAttempts,
+  type ProgressSkill,
+} from "../lib/progress";
+
 const skills = [
   {
     number: "01",
@@ -39,7 +45,52 @@ const skills = [
   },
 ];
 
+const skillOrder: ProgressSkill[] = [
+  "listening",
+  "reading",
+  "writing",
+  "speaking",
+];
+
 function Home() {
+  const attempts = getProgressAttempts();
+  const averageBand = getAverageBand();
+
+  const latestBySkill = skillOrder.reduce(
+    (result, skill) => {
+      result[skill] =
+        attempts.find((attempt) => attempt.skill === skill)
+          ?.band ?? null;
+
+      return result;
+    },
+    {} as Record<ProgressSkill, number | null>,
+  );
+
+  const getDisplayBand = (skill: ProgressSkill) => {
+    const band = latestBySkill[skill];
+
+    return typeof band === "number"
+      ? band.toFixed(1)
+      : "—";
+  };
+
+  const firstBand =
+    attempts.length > 1
+      ? attempts[attempts.length - 1]?.band
+      : null;
+
+  const trend =
+    typeof averageBand === "number" &&
+    typeof firstBand === "number"
+      ? Math.round((averageBand - firstBand) * 10) / 10
+      : null;
+
+  const trendText =
+    trend === null
+      ? "—"
+      : `${trend > 0 ? "+" : ""}${trend.toFixed(1)}`;
+
   return (
     <div className="home-page">
       <section className="hero">
@@ -187,8 +238,8 @@ function Home() {
           </div>
 
           <p className="section-description">
-            Every session becomes part of a clearer picture of your IELTS
-            performance.
+            Every completed attempt becomes part of your personal
+            performance picture.
           </p>
         </div>
 
@@ -199,12 +250,21 @@ function Home() {
                 ESTIMATED OVERALL BAND
               </span>
 
-              <strong>7.2</strong>
+              <strong>
+                {averageBand !== null
+                  ? averageBand.toFixed(1)
+                  : "—"}
+              </strong>
             </div>
 
             <div className="trend">
-              <span>+0.8</span>
-              <small>this month</small>
+              <span>{trendText}</span>
+
+              <small>
+                {trend === null
+                  ? "no comparison yet"
+                  : "change from earlier attempts"}
+              </small>
             </div>
           </div>
 
@@ -225,9 +285,18 @@ function Home() {
                   x1="0"
                   x2="1"
                 >
-                  <stop offset="0%" stopColor="#b7b7b3" />
-                  <stop offset="45%" stopColor="#b89a5a" />
-                  <stop offset="100%" stopColor="#222326" />
+                  <stop
+                    offset="0%"
+                    stopColor="#b7b7b3"
+                  />
+                  <stop
+                    offset="45%"
+                    stopColor="#b89a5a"
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="#222326"
+                  />
                 </linearGradient>
               </defs>
 
@@ -250,22 +319,30 @@ function Home() {
           <div className="skills-values">
             <div>
               <span>Listening</span>
-              <strong>7.5</strong>
+              <strong>
+                {getDisplayBand("listening")}
+              </strong>
             </div>
 
             <div>
               <span>Reading</span>
-              <strong>7.0</strong>
+              <strong>
+                {getDisplayBand("reading")}
+              </strong>
             </div>
 
             <div>
               <span>Writing</span>
-              <strong>6.5</strong>
+              <strong>
+                {getDisplayBand("writing")}
+              </strong>
             </div>
 
             <div>
               <span>Speaking</span>
-              <strong>7.5</strong>
+              <strong>
+                {getDisplayBand("speaking")}
+              </strong>
             </div>
           </div>
         </div>
